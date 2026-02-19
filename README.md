@@ -129,7 +129,7 @@ Updates profile information and saves it to the database.
 ---
 
 ## Live Demo
-(Add your deployed link here)
+https://gidy-profile-krvj4wlr5-nehaselvaraj23s-projects.vercel.app/
 
 ## Code Repository
 https://github.com/Nehaselvaraj23/gidy-profile
