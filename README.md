@@ -64,9 +64,10 @@ Profile data is stored in a relational database and persists across page reloads
 ---
 
 ## Project Structure
+## Project Structure
 
+```text
 src/
-│
 ├── app/
 │   ├── page.tsx
 │   └── api/
@@ -86,6 +87,8 @@ src/
 │
 ├── prisma/
 │   └── schema.prisma
+
+
 
 ---
 
