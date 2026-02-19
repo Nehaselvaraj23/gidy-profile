@@ -1,37 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gidy Profile Project
 
-## Getting Started
+## Overview
+This project is a full-stack profile application built as part of the Gidy.ai Full-Stack Technical Challenge.
+The goal was to recreate a high-fidelity version of the Gidy.ai profile page while implementing real backend logic, database persistence, and clean UI interactions.
 
-First, run the development server:
+The application allows a user to:
+- View their profile information
+- Edit profile details
+- Persist changes in a database
+- Experience a clean, responsive, modern UI
 
-```bash
+---
+
+## Tech Stack
+
+### Frontend
+- Next.js (App Router)
+- TypeScript
+- React
+- Tailwind CSS
+
+### Backend
+- Next.js API Routes
+- REST API
+
+### Database
+- PostgreSQL
+- Prisma ORM
+
+### Deployment
+- Vercel
+
+---
+
+## Features
+
+### Core Features
+- Profile page displaying:
+  - Name
+  - Title
+  - Bio
+  - Skills
+  - Social links
+- Data fetched from backend API
+- Edit profile functionality
+- Changes saved and persisted in database
+- Fully responsive UI
+
+### Edit Mode
+- Edit profile information using a modal
+- Skills entered as comma-separated values
+- Updates reflected immediately on save
+- Data synced with database using Prisma
+
+---
+
+## Innovation Feature
+
+### Persistent Edit Experience
+Instead of a static profile page, this project focuses on a real editable profile system.
+Profile data is stored in a relational database and persists across page reloads.
+
+---
+
+## Project Structure
+
+src/
+│
+├── app/
+│   ├── page.tsx
+│   └── api/
+│       └── profile/
+│           └── route.ts
+│
+├── components/
+│   ├── ProfileHeader.tsx
+│   ├── BioSection.tsx
+│   ├── SkillsSection.tsx
+│   ├── SocialLinks.tsx
+│   ├── EditModal.tsx
+│   └── EditButton.tsx
+│
+├── lib/
+│   └── prisma.ts
+│
+├── prisma/
+│   └── schema.prisma
+
+---
+
+## Setup Instructions
+
+### 1. Clone the repository
+git clone https://github.com/Nehaselvaraj23/gidy-profile.git
+cd gidy-profile
+
+### 2. Install dependencies
+npm install
+
+### 3. Environment variables
+Create a .env file and add:
+
+DATABASE_URL=your_postgresql_database_url
+
+### 4. Prisma setup
+npx prisma generate
+npx prisma migrate dev
+
+### 5. Run the project
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App will run on:
+http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## API Endpoints
 
-## Learn More
+GET /api/profile  
+Fetches profile data from the database.
 
-To learn more about Next.js, take a look at the following resources:
+PUT /api/profile  
+Updates profile information and saves it to the database.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Live Demo
+(Add your deployed link here)
 
-## Deploy on Vercel
+## Code Repository
+https://github.com/Nehaselvaraj23/gidy-profile
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-"# gidy-profile" 
+## Notes
+This project focuses on clean architecture, real backend persistence, and a production-like profile experience.
