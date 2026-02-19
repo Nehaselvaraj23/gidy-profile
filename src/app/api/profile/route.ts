@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 async function getPrisma() {
-  if (!process.env.DATABASE_URL) return null;
-  const { PrismaClient } = await import("@prisma/client");
+  if (!process.env.DATABASE_URL) return null; // fallback if no DB
+  const { PrismaClient } = await import("@prisma/client"); // dynamic import
   return new PrismaClient();
 }
 
@@ -13,8 +13,8 @@ export async function GET() {
   try {
     const prisma = await getPrisma();
 
+    // Fallback response if no DB available
     if (!prisma) {
-      // fallback during build or missing DB
       return NextResponse.json({
         name: "",
         title: "",
@@ -25,15 +25,27 @@ export async function GET() {
     }
 
     const user = await prisma.user.findFirst({
-      include: { skills: true, socialLinks: true },
+      include: {
+        skills: true,
+        socialLinks: true,
+      },
     });
 
     return NextResponse.json(
-      user ?? { name: "", title: "", bio: "", skills: [], socialLinks: [] }
+      user ?? {
+        name: "",
+        title: "",
+        bio: "",
+        skills: [],
+        socialLinks: [],
+      }
     );
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to load profile" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to load profile" },
+      { status: 500 }
+    );
   }
 }
 
@@ -43,14 +55,17 @@ export async function PUT(req: Request) {
     if (!prisma) return NextResponse.json({ success: false });
 
     const { name, title, bio, skills } = await req.json();
-    let user = await prisma.user.findFirst();
 
+    let user = await prisma.user.findFirst();
     if (!user) {
       user = await prisma.user.create({
         data: { name, title, bio, avatarUrl: "" },
       });
     } else {
-      await prisma.user.update({ where: { id: user.id }, data: { name, title, bio } });
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { name, title, bio },
+      });
     }
 
     await prisma.skill.deleteMany({ where: { userId: user.id } });
