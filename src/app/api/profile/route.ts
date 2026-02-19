@@ -1,20 +1,10 @@
-
 import { NextResponse } from "next/server";
-
+import prisma from "@/lib/prisma"; 
 export const dynamic = "force-dynamic";
-
-async function getPrisma() {
-  if (!process.env.DATABASE_URL) return null; // fallback if no DB
-  const { PrismaClient } = await import("@prisma/client"); // dynamic import
-  return new PrismaClient();
-}
 
 export async function GET() {
   try {
-    const prisma = await getPrisma();
-
-    // Fallback response if no DB available
-    if (!prisma) {
+    if (!process.env.DATABASE_URL) {
       return NextResponse.json({
         name: "",
         title: "",
@@ -42,17 +32,13 @@ export async function GET() {
     );
   } catch (error) {
     console.error(error);
-    return NextResponse.json(
-      { error: "Failed to load profile" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to load profile" }, { status: 500 });
   }
 }
 
 export async function PUT(req: Request) {
   try {
-    const prisma = await getPrisma();
-    if (!prisma) return NextResponse.json({ success: false });
+    if (!process.env.DATABASE_URL) return NextResponse.json({ success: false });
 
     const { name, title, bio, skills } = await req.json();
 
