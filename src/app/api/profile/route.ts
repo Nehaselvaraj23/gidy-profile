@@ -1,10 +1,21 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma"; 
+
 export const dynamic = "force-dynamic";
 
+// Dynamic Prisma client import to avoid Vercel caching issues
+async function getPrisma() {
+  if (!process.env.DATABASE_URL) return null;
+  const { PrismaClient } = await import("@prisma/client");
+  return new PrismaClient();
+}
+
+// GET /api/profile
 export async function GET() {
   try {
-    if (!process.env.DATABASE_URL) {
+    const prisma = await getPrisma();
+
+    // Fallback response if DB is unavailable
+    if (!prisma) {
       return NextResponse.json({
         name: "",
         title: "",
@@ -31,14 +42,19 @@ export async function GET() {
       }
     );
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Failed to load profile" }, { status: 500 });
+    console.error("Error fetching profile:", error);
+    return NextResponse.json(
+      { error: "Failed to load profile" },
+      { status: 500 }
+    );
   }
 }
 
+// PUT /api/profile
 export async function PUT(req: Request) {
   try {
-    if (!process.env.DATABASE_URL) return NextResponse.json({ success: false });
+    const prisma = await getPrisma();
+    if (!prisma) return NextResponse.json({ success: false });
 
     const { name, title, bio, skills } = await req.json();
 
@@ -54,14 +70,17 @@ export async function PUT(req: Request) {
       });
     }
 
+    // Clear old skills and add new ones safely
     await prisma.skill.deleteMany({ where: { userId: user.id } });
-    await prisma.skill.createMany({
-      data: skills.map((s: string) => ({ name: s, userId: user.id })),
-    });
+    if (Array.isArray(skills) && skills.length > 0) {
+      await prisma.skill.createMany({
+        data: skills.map((s: string) => ({ name: s, userId: user.id })),
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    console.error("Error updating profile:", error);
+    return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
   }
 }
