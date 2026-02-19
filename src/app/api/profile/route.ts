@@ -1,20 +1,20 @@
+
 import { NextResponse } from "next/server";
 
-
 export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
 
+async function getPrisma() {
+  if (!process.env.DATABASE_URL) return null;
+  const { PrismaClient } = await import("@prisma/client");
+  return new PrismaClient();
+}
 
 export async function GET() {
   try {
-    const user = await prisma.user.findFirst({
-      include: {
-        skills: true,
-        socialLinks: true,
-      },
-    });
+    const prisma = await getPrisma();
 
-    if (!user) {
+    if (!prisma) {
+      // fallback during build or missing DB
       return NextResponse.json({
         name: "",
         title: "",
@@ -24,44 +24,38 @@ export async function GET() {
       });
     }
 
-    return NextResponse.json(user);
+    const user = await prisma.user.findFirst({
+      include: { skills: true, socialLinks: true },
+    });
+
+    return NextResponse.json(
+      user ?? { name: "", title: "", bio: "", skills: [], socialLinks: [] }
+    );
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to load profile" }, { status: 500 });
   }
 }
 
 export async function PUT(req: Request) {
   try {
-    const { name, title, bio, skills } = await req.json();
+    const prisma = await getPrisma();
+    if (!prisma) return NextResponse.json({ success: false });
 
+    const { name, title, bio, skills } = await req.json();
     let user = await prisma.user.findFirst();
 
     if (!user) {
       user = await prisma.user.create({
-        data: {
-          name,
-          title,
-          bio,
-          avatarUrl: "",
-        },
+        data: { name, title, bio, avatarUrl: "" },
       });
     } else {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { name, title, bio },
-      });
-
-      await prisma.skill.deleteMany({
-        where: { userId: user.id },
-      });
+      await prisma.user.update({ where: { id: user.id }, data: { name, title, bio } });
     }
 
+    await prisma.skill.deleteMany({ where: { userId: user.id } });
     await prisma.skill.createMany({
-      data: skills.map((s: string) => ({
-        name: s,
-        userId: user.id,
-      })),
+      data: skills.map((s: string) => ({ name: s, userId: user.id })),
     });
 
     return NextResponse.json({ success: true });
